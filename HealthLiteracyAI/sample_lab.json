@@ -1,0 +1,39 @@
+{
+  "hospital_info": {
+    "name": "GNU Solidario Hospital",
+    "address": "Autovía del Norte 12485, Las Palmas de Gran Canaria, Spain"
+  },
+  "patient_info": {
+    "name": "Ana Betz",
+    "patient_id": "PAC001",
+    "age": "25y 10m 26d",
+    "sex": "Female"
+  },
+  "report_metadata": {
+    "date": "2011-08-25",
+    "time": "08:32",
+    "doctor": "Cameron Cordara",
+    "test_id": "B165AAF4",
+    "signature_key": "E44311F4"
+  },
+  "blood_test_results": [
+    { "test_name": "Hemoglobin", "result": 12.0, "normal_range": "11.0-16.0", "units": "g/dL" },
+    { "test_name": "RBC", "result": 3.3, "normal_range": "3.5-5.50", "units": "10^6/uL", "flag": "low" },
+    { "test_name": "HCT", "result": 36.0, "normal_range": "37.0-50.0", "units": "%", "flag": "low" },
+    { "test_name": "MCV", "result": 83.0, "normal_range": "82-95", "units": "fl" },
+    { "test_name": "MCH", "result": 28.0, "normal_range": "27-31", "units": "pg" },
+    { "test_name": "MCHC", "result": 33.0, "normal_range": "32.0-36.0", "units": "g/dL" },
+    { "test_name": "RDW-CV", "result": 12.0, "normal_range": "11.5-14.5", "units": "%" },
+    { "test_name": "RDW-SD", "result": 44.0, "normal_range": "35-56", "units": "fl" },
+    { "test_name": "WBC", "result": 6.7, "normal_range": "4.5-11", "units": "10^3/uL" },
+    { "test_name": "NEU%", "result": 60.0, "normal_range": "40-70", "units": "%" },
+    { "test_name": "LYM%", "result": 30.0, "normal_range": "20-45", "units": "%" },
+    { "test_name": "MON%", "result": 8.0, "normal_range": "2-10", "units": "%" },
+    { "test_name": "EOS%", "result": 2.0, "normal_range": "1-6", "units": "%" },
+    { "test_name": "BAS%", "result": 0.0, "normal_range": "0-2", "units": "%" },
+    { "test_name": "LYM#", "result": 2.0, "normal_range": "1.5-4.0", "units": "10^3/uL" },
+    { "test_name": "GRA#", "result": 4.7, "normal_range": "2.0-7.5", "units": "10^3/uL" },
+    { "test_name": "PLT", "result": 256.0, "normal_range": "150-450", "units": "10^3/uL" },
+    { "test_name": "ESR", "result": 2.0, "normal_range": "Up to 15", "units": "mm/hr" }
+  ]
+}
