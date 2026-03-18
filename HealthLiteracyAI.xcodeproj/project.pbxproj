@@ -6,6 +6,7 @@
 	objectVersion = 77;
 	objects = {
 
+
 /* Begin PBXBuildFile section */
 		34CD5D6C2F6A422A0055BF47 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34CD5D6B2F6A422A0055BF47 /* Vision.framework */; };
 /* End PBXBuildFile section */
@@ -13,6 +14,10 @@
 /* Begin PBXFileReference section */
 		344B29A22F65C21300CED661 /* HealthLiteracyAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthLiteracyAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34CD5D6B2F6A422A0055BF47 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+
+/* Begin PBXFileReference section */
+		344B29A22F65C21300CED661 /* HealthLiteracyAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthLiteracyAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -41,7 +46,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+
 				34CD5D6C2F6A422A0055BF47 /* Vision.framework in Frameworks */,
+
+
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,7 +60,10 @@
 			isa = PBXGroup;
 			children = (
 				344B29A42F65C21300CED661 /* HealthLiteracyAI */,
+
 				34CD5D6A2F6A421F0055BF47 /* Frameworks */,
+
+
 				344B29A32F65C21300CED661 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +76,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+
 		34CD5D6A2F6A421F0055BF47 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +85,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 import AVFoundation
 import Vision
 
@@ -36,7 +37,3 @@ class ViewController: UIViewController {
         }
     }
 }
-
-
-
-
