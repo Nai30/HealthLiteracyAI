@@ -13,6 +13,8 @@ import Vision
 class ViewController: UIViewController {
     let camera = Camera()
     
+    @IBOutlet weak var pdfButton: UIButton!
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -36,4 +38,5 @@ class ViewController: UIViewController {
             }
         }
     }
+    
 }
