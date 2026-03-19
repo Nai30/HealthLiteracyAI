@@ -14,7 +14,7 @@
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="HealthLiteracyAI" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" ambiguous="YES" id="8bC-Xf-vdC">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -191,13 +191,13 @@
                         <viewLayoutGuide key="safeArea" id="yVt-hi-3tX"/>
                         <color key="backgroundColor" systemColor="systemGray6Color"/>
                         <constraints>
-                            <constraint firstItem="yVt-hi-3tX" firstAttribute="bottom" secondItem="zPA-Rz-D7H" secondAttribute="bottom" constant="89" id="OOp-sB-1WT"/>
+                            <constraint firstItem="yVt-hi-3tX" firstAttribute="bottom" secondItem="zPA-Rz-D7H" secondAttribute="bottom" constant="40" id="OOp-sB-1WT"/>
                             <constraint firstItem="zPA-Rz-D7H" firstAttribute="leading" secondItem="yVt-hi-3tX" secondAttribute="leading" constant="141" id="TYI-2v-thz"/>
                             <constraint firstItem="zPA-Rz-D7H" firstAttribute="centerX" secondItem="meI-Fk-bga" secondAttribute="centerX" id="W6R-Ad-oPd"/>
                             <constraint firstItem="yVt-hi-3tX" firstAttribute="bottom" secondItem="efP-GT-m2Y" secondAttribute="bottom" constant="137" id="lxP-62-F9I"/>
                             <constraint firstItem="efP-GT-m2Y" firstAttribute="leading" secondItem="yVt-hi-3tX" secondAttribute="leading" constant="42" id="qiV-IQ-Vsj"/>
                             <constraint firstItem="efP-GT-m2Y" firstAttribute="centerY" secondItem="meI-Fk-bga" secondAttribute="centerY" constant="30" id="t76-1a-tcQ"/>
-                            <constraint firstItem="zPA-Rz-D7H" firstAttribute="top" secondItem="efP-GT-m2Y" secondAttribute="bottom" constant="8" id="uh4-xr-Zb2"/>
+                            <constraint firstItem="zPA-Rz-D7H" firstAttribute="top" secondItem="efP-GT-m2Y" secondAttribute="bottom" constant="57" id="uh4-xr-Zb2"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="DocDigest" id="UyQ-kN-ejt">

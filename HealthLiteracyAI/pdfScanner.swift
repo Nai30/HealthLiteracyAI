@@ -2,7 +2,7 @@ import SwiftUI
 import PDFKit
 import UniformTypeIdentifiers
 import Vision
-import PythonKit
+
 
 struct VisionView: View {
     @State private var scannedText: String = "Select a PDF to scan."
