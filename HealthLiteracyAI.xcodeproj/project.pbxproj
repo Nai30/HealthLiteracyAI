@@ -6,8 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+<<<<<<< Updated upstream
 /* Begin PBXFileReference section */
 		344B29A22F65C21300CED661 /* HealthLiteracyAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthLiteracyAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+=======
+/* Begin PBXBuildFile section */
+		34CD5D6C2F6A422A0055BF47 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34CD5D6B2F6A422A0055BF47 /* Vision.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		344B29A22F65C21300CED661 /* HealthLiteracyAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthLiteracyAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		34CD5D6B2F6A422A0055BF47 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+>>>>>>> Stashed changes
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +46,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< Updated upstream
+=======
+				34CD5D6C2F6A422A0055BF47 /* Vision.framework in Frameworks */,
+>>>>>>> Stashed changes
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +60,10 @@
 			isa = PBXGroup;
 			children = (
 				344B29A42F65C21300CED661 /* HealthLiteracyAI */,
+<<<<<<< Updated upstream
+=======
+				34CD5D6A2F6A421F0055BF47 /* Frameworks */,
+>>>>>>> Stashed changes
 				344B29A32F65C21300CED661 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,6 +76,17 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+<<<<<<< Updated upstream
+=======
+		34CD5D6A2F6A421F0055BF47 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				34CD5D6B2F6A422A0055BF47 /* Vision.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+>>>>>>> Stashed changes
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -145,7 +174,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4PYSKPZH3C;
+				DEVELOPMENT_TEAM = K6G827G5Q4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthLiteracyAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -173,7 +202,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4PYSKPZH3C;
+				DEVELOPMENT_TEAM = K6G827G5Q4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthLiteracyAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

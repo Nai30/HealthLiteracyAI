@@ -1,6 +1,5 @@
 // Created by Gabriella Small on 3/17/2026, based off of Bethany's "gemlogic.py" code
 import Foundation
-import FoundationNetworking 
 
 class GeminiHandling {
     // Private Variables: handles API Key, gemini version type, processed JSON text, and translated text within class
