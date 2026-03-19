@@ -12,6 +12,7 @@ import SwiftUI
 
 class ViewController: UIViewController {
     let camera = Camera()
+
     @IBOutlet weak var imgButton: UIButton!
     @IBOutlet weak var pdfButton: UIButton!
     @IBAction func pdfButtonTapped (_sender:UIButton){
@@ -61,6 +62,11 @@ class ViewController: UIViewController {
             
         }
     }
+
+    
+
+    
+
     override func viewDidLoad() {
         
         super.viewDidLoad()

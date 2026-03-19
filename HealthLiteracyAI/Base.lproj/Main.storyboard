@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="SEE-TB-yZ2">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
@@ -7,6 +8,14 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="UIMenu" message="Requires Xcode 11 or later." minToolsVersion="11.0" requiredIntegratedClassName="UICommandDiff"/>
+
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,6 +27,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IBm-aU-1Q4" userLabel="PDF">
                                 <rect key="frame" x="108" y="621" width="150" height="34.333333333333371"/>
                                 <state key="normal" title="Button"/>
@@ -81,10 +91,18 @@
                                 </attributedString>
                                 <nil key="highlightedColor"/>
                             </label>
+
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IBm-aU-1Q4" userLabel="PDF" customClass="pdfButton">
+                                <rect key="frame" x="155" y="568" width="60" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="PDF "/>
+                            </button>
+
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+
                             <constraint firstItem="IBm-aU-1Q4" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="518" id="02V-0Y-AhK"/>
                             <constraint firstItem="hc5-o6-C0O" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="23" id="66e-au-D3K"/>
                             <constraint firstItem="4j4-wZ-gzY" firstAttribute="trailing" secondItem="IBm-aU-1Q4" secondAttribute="trailing" id="8Cl-Ck-OtO"/>
@@ -104,11 +122,19 @@
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="imgButton" destination="4j4-wZ-gzY" id="veb-te-dhy"/>
+
+                            <constraint firstItem="IBm-aU-1Q4" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="509" id="02V-0Y-AhK"/>
+                            <constraint firstItem="IBm-aU-1Q4" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="155" id="ITF-hi-Hlu"/>
+                        </constraints>
+                    </view>
+                    <connections>
+
                         <outlet property="pdfButton" destination="IBm-aU-1Q4" id="jDP-PM-XmX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+
             <point key="canvasLocation" x="1049.6183206106871" y="-2.1126760563380285"/>
         </scene>
         <!--Tab Bar Controller-->
@@ -228,10 +254,12 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="erd-RG-RUe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+
             <point key="canvasLocation" x="122.90076335877862" y="-2.1126760563380285"/>
         </scene>
     </scenes>
     <resources>
+
         <image name="arrowtriangle.up.fill" catalog="system" width="128" height="120"/>
         <image name="homekit" catalog="system" width="128" height="104"/>
         <image name="text.page" catalog="system" width="115" height="128"/>
@@ -253,5 +281,10 @@
         <systemColor name="systemGray6Color">
             <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
+
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+
     </resources>
 </document>
