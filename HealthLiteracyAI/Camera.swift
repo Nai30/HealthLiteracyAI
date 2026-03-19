@@ -7,7 +7,6 @@ Provides the custom camera functionality.
 
 import AVFoundation
 import SwiftUI
-
 @Observable
 class Camera: NSObject, AVCapturePhotoCaptureDelegate {
     var session = AVCaptureSession()
@@ -94,4 +93,6 @@ class Camera: NSObject, AVCapturePhotoCaptureDelegate {
 
         session.stopRunning()
     }
+    
 }
+
