@@ -2,11 +2,12 @@
 See the LICENSE.txt file for this sample’s licensing information.
 
 Abstract:
-Provides the custom camera functionality.
+Provides the custom camera functionality with integrated OCR text recognition.
 */
 
 import AVFoundation
 import SwiftUI
+
 @Observable
 class Camera: NSObject, AVCapturePhotoCaptureDelegate {
     var session = AVCaptureSession()
@@ -15,6 +16,11 @@ class Camera: NSObject, AVCapturePhotoCaptureDelegate {
 
     var photoData: Data? = nil
     var hasPhoto: Bool = false
+    
+    // Joshua added: Instance of the OCR class to handle text recognition logic
+    private var ocrExecutor = OCR()
+    // Joshua added: String to store the final text extracted from the image for the UI
+    var recognizedText: String = ""
 
     /// A function that returns a Boolean value if the app has access to use the camera — `true` if the user grants access, and `false`, if not.
     func checkCameraAuthorization() async -> Bool {
@@ -24,9 +30,7 @@ class Camera: NSObject, AVCapturePhotoCaptureDelegate {
         case .notDetermined:
             let status = await AVCaptureDevice.requestAccess(for: .video)
             return status
-        case .denied:
-            return false
-        case .restricted:
+        case .denied, .restricted:
             return false
         @unknown default:
             return false
@@ -72,27 +76,54 @@ class Camera: NSObject, AVCapturePhotoCaptureDelegate {
         
         return true
     }
+    
+    // --- JOSHUA'S OCR WORKFLOW ---
 
-    func capturePhoto() {
-        output.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+    /// 1. Trigger the hardware to take a picture and start the processing chain
+    func takePhotoAndProcess() {
+        let settings = AVCapturePhotoSettings()
+        output.capturePhoto(with: settings, delegate: self)
+    }
+
+    /// 2. Simple getter function to return the final recognized text to other parts of the app
+    func getRecognizedText() -> String {
+        return recognizedText
+    }
+
+    /// 3. Delegate method: Runs automatically after the camera snaps the photo
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
+        // Check if image data exists
+        guard let data = photo.fileDataRepresentation() else { return }
+        
+        self.photoData = data
+        self.hasPhoto = true
+        
+        // Stop the live preview once the photo is captured
+        self.session.stopRunning()
+
+        // Joshua added: Immediately send the raw data to the OCR file for processing
+        Task {
+            do {
+                try await ocrExecutor.performOCR(imageData: data)
+                
+                // Update the UI on the Main Thread with the joined text results
+                await MainActor.run {
+                    self.recognizedText = ocrExecutor.observations.compactMap { $0.text }.joined(separator: "\n")
+                }
+            } catch {
+                print("OCR Processing Error: \(error.localizedDescription)")
+            }
+        }
     }
 
     func retakePhoto() {
         /// Reset both the `photoData` and `hasPhoto` variables to allow photo recapture.
         photoData = nil
         hasPhoto = false
+        recognizedText = "" // Also clear the old recognized text
 
         Task(priority: .background) {
             session.startRunning()
         }
     }
-
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
-        photoData = photo.fileDataRepresentation()
-        hasPhoto = true
-
-        session.stopRunning()
-    }
-    
 }
-
