@@ -3,34 +3,44 @@ import Vision
 
 @Observable
 class OCR {
-    /// The array of observations to hold the request's results.
-    var observations = [RecognizedTextObservation]()
+    /// Joshua's Edit: Use the correct Vision Observation type
+    var observations = [RecognizeTextRequest.Observation]()
 
-    /// The Vision request.
+    /// The Vision request for text recognition
     var request = RecognizeTextRequest()
 
     func performOCR(imageData: Data) async throws {
-        // Clear old results
+        // Clear old results for a clean scan
         observations.removeAll()
 
-        // Perform the OCR request
+        // Perform the OCR request on the captured image data
         let results = try await request.perform(on: imageData)
 
-        // Joshua's Edit: Save results so Camera.swift can access them
+        // Joshua's Edit: Save results to the Main thread so the UI updates instantly
         await MainActor.run {
             self.observations = results
         }
     }
 }
 
-/// Create and dynamically size a bounding box.
+/// Joshua added: Create and dynamically size a bounding box based on Vision results
 struct Box: Shape {
-    private let normalizedRect: NormalizedRect
-    init(observation: any BoundingBoxProviding) {
-        normalizedRect = observation.boundingBox
+    private let normalizedRect: CGRect // Vision uses CGRect for bounding boxes
+
+    init(observation: RecognizeTextRequest.Observation) {
+        self.normalizedRect = observation.boundingBox
     }
+
     func path(in rect: CGRect) -> Path {
-        let rect = normalizedRect.toImageCoordinates(rect.size, origin: .upperLeft)
-        return Path(rect)
+        // Convert normalized coordinates (0 to 1) to the actual view size
+        let projectRect = VNImageRectForNormalizedRect(normalizedRect, Int(rect.width), Int(rect.height))
+        
+        // Adjust for the coordinate system (Vision is bottom-up, UIKit is top-down)
+        let transformedRect = CGRect(x: projectRect.minX, 
+                                     y: rect.height - projectRect.maxY, 
+                                     width: projectRect.width, 
+                                     height: projectRect.height)
+        
+        return Path(transformedRect)
     }
 }

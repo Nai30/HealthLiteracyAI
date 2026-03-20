@@ -92,23 +92,20 @@ class Camera: NSObject, AVCapturePhotoCaptureDelegate {
 
     /// 3. Delegate method: Runs automatically after the camera snaps the photo
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
-        // Check if image data exists
         guard let data = photo.fileDataRepresentation() else { return }
-        
         self.photoData = data
         self.hasPhoto = true
-        
-        // Stop the live preview once the photo is captured
         self.session.stopRunning()
 
-        // Joshua added: Immediately send the raw data to the OCR file for processing
         Task {
             do {
                 try await ocrExecutor.performOCR(imageData: data)
                 
-                // Update the UI on the Main Thread with the joined text results
                 await MainActor.run {
-                    self.recognizedText = ocrExecutor.observations.compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
+                    // Joshua's Fix: Correctly extracting the string from top candidates
+                    self.recognizedText = ocrExecutor.observations.compactMap { observation in
+                        observation.topCandidates(1).first?.string
+                    }.joined(separator: "\n")
                 }
             } catch {
                 print("OCR Processing Error: \(error.localizedDescription)")
