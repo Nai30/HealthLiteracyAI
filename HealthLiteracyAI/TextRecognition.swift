@@ -3,39 +3,40 @@ import Vision
 
 @Observable
 class OCR {
-    /// Joshua's Edit: Use the correct Vision Observation type
+    /// Joshua's Edit: Array of observations using the correct Vision 17+ type
     var observations = [RecognizeTextRequest.Observation]()
 
-    /// The Vision request for text recognition
+    /// The Vision request object
     var request = RecognizeTextRequest()
 
+    /// Function to process image data and extract text
     func performOCR(imageData: Data) async throws {
-        // Clear old results for a clean scan
+        // 1. Clear old results for a fresh scan
         observations.removeAll()
 
-        // Perform the OCR request on the captured image data
+        // 2. Perform the request (This is an async call)
         let results = try await request.perform(on: imageData)
 
-        // Joshua's Edit: Save results to the Main thread so the UI updates instantly
+        // 3. Update the observations on the Main Thread for UI safety
         await MainActor.run {
             self.observations = results
         }
     }
 }
 
-/// Joshua added: Create and dynamically size a bounding box based on Vision results
+/// Joshua added: Bounding box logic to potentially highlight text on screen
 struct Box: Shape {
-    private let normalizedRect: CGRect // Vision uses CGRect for bounding boxes
+    private let normalizedRect: CGRect 
 
     init(observation: RecognizeTextRequest.Observation) {
         self.normalizedRect = observation.boundingBox
     }
 
     func path(in rect: CGRect) -> Path {
-        // Convert normalized coordinates (0 to 1) to the actual view size
+        // Converts the 0.0-1.0 coordinates from Vision into actual screen pixels
         let projectRect = VNImageRectForNormalizedRect(normalizedRect, Int(rect.width), Int(rect.height))
         
-        // Adjust for the coordinate system (Vision is bottom-up, UIKit is top-down)
+        // Flips the coordinate system so boxes appear in the right spot
         let transformedRect = CGRect(x: projectRect.minX, 
                                      y: rect.height - projectRect.maxY, 
                                      width: projectRect.width, 

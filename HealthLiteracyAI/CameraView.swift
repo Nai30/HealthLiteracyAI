@@ -5,7 +5,7 @@ struct CameraView: View {
 
     var body: some View {
         ZStack {
-            // Joshua added: Live camera feed so the user can see what they are scanning
+            // Fix for the Black Screen: Shows live feed from the camera session
             if !camera.hasPhoto {
                 CameraPreview(session: camera.session)
                     .ignoresSafeArea()
@@ -15,9 +15,9 @@ struct CameraView: View {
             
             VStack {
                 if camera.hasPhoto {
-                    // Joshua added: Display the text found by the OCR logic
+                    // UI to display the recognized text results
                     ScrollView {
-                        Text(camera.recognizedText)
+                        Text(camera.recognizedText.isEmpty ? "No text detected." : camera.recognizedText)
                             .padding()
                             .background(Color.white.opacity(0.9))
                             .cornerRadius(12)
@@ -31,11 +31,8 @@ struct CameraView: View {
                     .padding(.bottom, 30)
                 } else {
                     Spacer()
-                    
-                    // Joshua's Camera Icon Button: Triggers the photo and OCR chain
-                    Button(action: {
-                        camera.takePhotoAndProcess()
-                    }) {
+                    // Joshua's Camera Icon Button
+                    Button(action: { camera.takePhotoAndProcess() }) {
                         Image(systemName: "camera.circle.fill")
                             .resizable()
                             .frame(width: 85, height: 85)
@@ -46,13 +43,11 @@ struct CameraView: View {
                 }
             }
         }
-        .onAppear {
-            _ = camera.setup()
-        }
+        .onAppear { _ = camera.setup() }
     }
 }
 
-// Helper to show the live camera feed in SwiftUI
+/// Helper struct that translates UIKit's preview layer into SwiftUI
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
     func makeUIView(context: Context) -> UIView {
