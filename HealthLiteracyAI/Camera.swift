@@ -108,7 +108,7 @@ class Camera: NSObject, AVCapturePhotoCaptureDelegate {
                 
                 // Update the UI on the Main Thread with the joined text results
                 await MainActor.run {
-                    self.recognizedText = ocrExecutor.observations.compactMap { $0.text }.joined(separator: "\n")
+                    self.recognizedText = ocrExecutor.observations.compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
                 }
             } catch {
                 print("OCR Processing Error: \(error.localizedDescription)")
