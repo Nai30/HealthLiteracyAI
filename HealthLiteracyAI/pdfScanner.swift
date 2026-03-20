@@ -1,148 +1,116 @@
 import SwiftUI
-import PDFKit
+import PhotosUI
 import Vision
 
-struct TranslateBridge: UIViewControllerRepresentable {
-    var textToTranslate: String
-
-    func makeUIViewController(context: Context) -> Translate {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "TranslateVC") as! Translate
-        return vc
-    }
-
-    func updateUIViewController(_ uiViewController: Translate, context: Context) {
-        // This is the "Injection" step!
-        uiViewController.performGeminiTranslation(messyText: textToTranslate)
-    }
-}
 struct VisionView: View {
-    // --- Variables ---
-    @State private var scannedText: String = "Select a PDF to scan."
+    // --- Variables (The "State" of your app) ---
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var scannedText: String = "Tap the button to scan a document."
     @State private var isProcessing: Bool = false
-    @State private var showFilePicker: Bool = false
-    @State private var navigateToTranslate = false
-    
-    let API_Key = APIConfig.geminiKey
-    lazy var gemini = GeminiHandling(apiKey: API_Key)
+
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Health Literacy Scanner")
-                .font(.headline)
-                .padding(.top)
+        NavigationStack {
+            VStack(spacing: 20) {
+                // 1. The Header
+                Text("Health Literacy Scanner")
+                    .font(.headline)
+                    .padding(.top)
 
-            ScrollView {
-                Text(scannedText)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal)
-
-            if isProcessing {
-                ProgressView("Analyzing PDF...")
-            }
-
-            // PDF Selection Button
-            Button(action: { showFilePicker = true }) {
-                Label("Select PDF", systemImage: "doc.badge.plus")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(15)
-            }
-            .fullScreenCover(isPresented: $navigateToTranslate) {
-                // This calls our bridge and passes the scanned text
-                TranslateBridge(textToTranslate: scannedText)
-            }
-        }
-        .padding()
-        .fileImporter(
-            isPresented: $showFilePicker,
-            allowedContentTypes: [.pdf], // Strictly PDFs
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let firstURL = urls.first {
-                    processPDF(at: firstURL)
+                // 2. The Text Display (Scrollable for long documents)
+                ScrollView {
+                    Text(scannedText)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
                 }
-            case .failure(let error):
-                print("Error: \(error.localizedDescription)")
+                .padding(.horizontal)
+
+                // 3. Loading Indicator
+                if isProcessing {
+                    ProgressView("Analyzing text...")
+                }
+
+                // 4. The "Ask" Button (Photos Picker)
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    Label("Select Document", systemImage: "doc.text.viewfinder")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(15)
+                }
+                .onChange(of: selectedItem) { newItem in
+                    // This runs when the user finishes picking a photo
+                    Task {
+                        isProcessing = true
+                        if let data = try? await newItem?.loadTransferable(type: Data.self),
+                           let image = UIImage(data: data) {
+                            startTextRecognition(image: image)
+                        }
+                    }
+                }
+                
+                Spacer()
             }
+            .navigationTitle("Vision Lead Demo")
         }
     }
 
-    // --- Logic Section ---
-
-    func processPDF(at url: URL) {
-        isProcessing = true
-        
-        // PDFs from fileImporter need permission to be read
-        guard url.startAccessingSecurityScopedResource() else {
-            isProcessing = false
-            return
-        }
-        
-        defer { url.stopAccessingSecurityScopedResource() }
-
-        // Convert PDF Page to an Image for Vision to read
-        if let pdfDocument = PDFDocument(url: url),
-           let firstPage = pdfDocument.page(at: 0) {
-            
-            let pageRect = firstPage.bounds(for: .mediaBox)
-            let renderer = UIGraphicsImageRenderer(size: pageRect.size)
-            
-            let image = renderer.image { context in
-                context.cgContext.saveGState()
-                context.cgContext.translateBy(x: 0, y: pageRect.size.height)
-                context.cgContext.scaleBy(x: 1.0, y: -1.0)
-                firstPage.draw(with: .mediaBox, to: context.cgContext)
-                context.cgContext.restoreGState()
-            }
-            
-            startTextRecognition(image: image)
-        } else {
-            isProcessing = false
-            scannedText = "Could not read PDF content."
-        }
-    }
-
+    // --- The Logic (The Vision Function) ---
     func startTextRecognition(image: UIImage) {
+        // Convert to CGImage (Core Graphics format)
         guard let cgImage = image.cgImage else {
+            self.scannedText = "Error: Could not process image data."
             self.isProcessing = false
             return
         }
-
+        
+        // Create the Request
         let request = VNRecognizeTextRequest { request, error in
-            guard let observations = request.results as? [VNRecognizedTextObservation], error == nil else {
-                DispatchQueue.main.async { self.isProcessing = false }
+            // Handle Errors
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.scannedText = "Error: \(error.localizedDescription)"
+                    self.isProcessing = false
+                }
                 return
             }
-
-            let fullText = observations.compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
-
+            
+            // Get the Results
+            guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
+            
+            // Combine all found text into one big string
+            var fullDetectedText = ""
+            for observation in observations {
+                if let topCandidate = observation.topCandidates(1).first {
+                    fullDetectedText += topCandidate.string + "\n"
+                }
+            }
+            
+            // UPDATE THE UI (Always on the Main Thread!)
             DispatchQueue.main.async {
-                self.scannedText = fullText.isEmpty ? "No text found in PDF." : fullText
+                self.scannedText = fullDetectedText.isEmpty ? "No text found in image." : fullDetectedText
                 self.isProcessing = false
-                if !fullText.isEmpty {
-                        self.navigateToTranslate = true
-                    }
             }
         }
-
+        
+        // Set Recognition Quality
         request.recognitionLevel = .accurate
+        
+        // Run the Request
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-
-        DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                try handler.perform([request])
-            } catch {
-                DispatchQueue.main.async { self.isProcessing = false }
-            }
+        do {
+            try handler.perform([request])
+        } catch {
+            print("Failed to perform Vision request: \(error)")
+            self.isProcessing = false
         }
     }
+}
+
+// This allows the preview to show up in your editor
+#Preview {
+    VisionView()
 }
