@@ -17,16 +17,11 @@ class OCR {
     var request = RecognizeTextRequest()
 
     func performOCR(imageData: Data) async throws {
-        /// Clear the `observations` array for photo recapture.
-        observations.removeAll()
-
-        /// Perform the request on the image data and return the results.
-        let results = try await request.perform(on: imageData)
-
-        /// Add each observation to the `observations` array.
-        for observation in results {
-            observations.append(observation)
-        }
+    observations.removeAll()
+    let results = try await request.perform(on: imageData)
+    
+    // This replaces the entire for-loop
+    self.observations = results 
     }
 }
 

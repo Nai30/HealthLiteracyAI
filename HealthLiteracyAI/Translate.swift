@@ -13,6 +13,7 @@ class Translate: UIViewController {
     lazy var gemini = GeminiHandling(apiKey: APIConfig.geminiKey)
     var incomingText: String?
     var targetLanguage: String = "Spanish"
+    private var lastProcessedText: String?
     
     @IBOutlet weak var selectLanguage: UIButton!
     @IBAction func selectLanguagePressed(_ sender: Any) {
@@ -52,35 +53,42 @@ class Translate: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        textArea.text = "Awaiting translation..."
-        if let text = incomingText{
-            self.textArea.text = text
-            performGeminiTranslation(messyText: text)
-        }
+        textArea.text="Please Select a language to proceed with the translation"
     }
-    func performGeminiTranslation(messyText: String){
-        Task{
-            // If the view isn't loaded yet, just save the text for later
-                    guard isViewLoaded else {
-                        incomingText = messyText
-                        return
-                    }
-            //wait for gemini to process the text
+    func performGeminiTranslation(messyText: String) {
+        // 1. AVOID INFINITE LOOP: If we already processed this exact text, STOP.
+        guard messyText != lastProcessedText else { return }
+        lastProcessedText = messyText
+        
+        print("DEBUG: Received text for translation: \(messyText)")
+        
+        // 2. Ensure we are on the Main Thread to update the "Loading" label
+        DispatchQueue.main.async {
+            self.textArea.text = "Translating... please wait."
+        }
+
+        Task {
+            guard isViewLoaded else {
+                incomingText = messyText
+                return
+            }
+
+            // Use your original gemini logic
             let success = await gemini.processDocument(rawOCRText: String(messyText))
-            if success{
-                
-                //get translated text
-                if let translatedText = await gemini.translateFull(targetLanguage: targetLanguage){
-                    await MainActor.run{
+            
+            if success {
+                if let translatedText = await gemini.translateFull(targetLanguage: targetLanguage) {
+                    await MainActor.run {
                         self.textArea.text = translatedText
                     }
-                    //get the translatedText into text area
-                    
-                    
-                }else{
-                    await MainActor.run{
+                } else {
+                    await MainActor.run {
                         self.textArea.text = "Error translating, scan again."
                     }
+                }
+            } else {
+                await MainActor.run {
+                    self.textArea.text = "Gemini failed to process document."
                 }
             }
         }
