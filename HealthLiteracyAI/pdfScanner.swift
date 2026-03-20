@@ -12,7 +12,7 @@ struct VisionView: View {
         NavigationStack {
             VStack(spacing: 20) {
                 // 1. The Header
-                Text("Health Literacy Scanner")
+                Text("DocDigest Scanner")
                     .font(.headline)
                     .padding(.top)
 
