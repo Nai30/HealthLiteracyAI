@@ -11,7 +11,6 @@ class GeminiHandling {
     private var processedJSON: String?
     private var translatedText: String?
     private var chatHistory: [[String: Any]] = []
-
     // Key injected into class during initialization
     init(apiKey: String) {
         self.apiKey = apiKey
@@ -30,16 +29,22 @@ class GeminiHandling {
 
     // -------- STEP 2: TRANSLATING ------
     func translateFull(targetLanguage: String) async -> String? {
-        guard let jsonData = self.processedJSON else {
-            return "Error: There is no data to translate."
-        }
-        let prompt = "Use !ONLY! Instruction A to process the following JSON file \(jsonData) in the following target language: \(targetLanguage)"
-
+        guard let jsonData = self.processedJSON else { return nil }
+            
+            // INSTEAD of "Use Instruction A", we give the actual instruction:
+            let prompt = """
+            Translate the following medical JSON data into \(targetLanguage). 
+            Use simple, patient-friendly language. Do not show JSON tags, 
+            just write it as a clear letter or summary for the patient.
+            
+            Data: \(jsonData)
+            """
         if let result = await sendRequest(userPrompt: prompt) {
-            self.translatedText = result
-            return result
-        }
-        return nil
+                self.translatedText = result
+                return result
+            }
+            
+            return nil
     }
 
     // ------- STEP 3: SUMMARIZING -------
@@ -47,7 +52,17 @@ class GeminiHandling {
         guard let translatedText = self.translatedText else {
             return "Error: There is no translation that can be summarized."
         }
-        let prompt = "Use !ONLY! Instruction B to process \(translatedText) in this language: \(targetLanguage)"
+        
+        // Instead of "Instruction B", we give a clear, descriptive prompt
+        let prompt = """
+        Summarize the following medical text into a bulleted list for a patient. 
+        Use very simple vocabulary and focus on the most important actions they need to take.
+        The summary MUST be written in \(targetLanguage).
+        
+        Text to summarize:
+        \(translatedText)
+        """
+        
         return await sendRequest(userPrompt: prompt)
     }
 
@@ -104,7 +119,21 @@ class GeminiHandling {
 
     private func performNetworkCall(with request: URLRequest) async -> String? {
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // 1. Check for HTTP Errors (like 400 or 500)
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                let errorBody = String(data: data, encoding: .utf8) ?? "Unknown"
+                print("DEBUG: Gemini API Error (\(httpResponse.statusCode)): \(errorBody)")
+                return nil
+            }
+
+            // 2. See exactly what Gemini sent back before we try to parse it
+            if let rawString = String(data: data, encoding: .utf8) {
+                print("DEBUG: Raw Gemini Response: \(rawString)")
+            }
+
+            // 3. Your existing parsing logic...
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                let candidates = json["candidates"] as? [[String: Any]],
                let first = candidates.first,

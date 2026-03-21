@@ -3,56 +3,39 @@ import PDFKit
 import Vision
 import PhotosUI
 
-// MARK: - Translate Bridge
-struct TranslateBridge: UIViewControllerRepresentable {
-    var textToTranslate: String
-
-        // 1. This CREATES the view (Runs once)
-        func makeUIViewController(context: Context) -> Translate {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            
-            // CRITICAL: Make sure this ID matches the one we set in the Identity Inspector!
-            let vc = storyboard.instantiateViewController(withIdentifier: "DocDigestVC") as! Translate
-            return vc
-        }
-
-        // 2. This UPDATES the view (Runs whenever 'textToTranslate' changes)
-        func updateUIViewController(_ uiViewController: Translate, context: Context) {
-            // PUSH the scanned text into your Storyboard ViewController's function
-            uiViewController.performGeminiTranslation(messyText: textToTranslate)
-        }
-}
 
 // MARK: - Main Vision View
 struct VisionView: View {
-    // --- State Variables ---
     @State private var scannedText: String = "Tap a button to scan a document."
     @State private var selectedItem: PhotosPickerItem?
     @State private var isProcessing: Bool = false
     @State private var showFilePicker: Bool = false
     @State private var navigateToTranslate = false
-    @State private var selectedLanguage: String = "Spanish" // Default
-    let languages = ["Spanish", "French", "German", "Chinese", "Hindi"]
+    @State private var selectedLanguage: String = "Spanish"
+    let languages = ["Spanish", "French"]
 
     var body: some View {
         NavigationStack {
-            ForEach(languages, id: \.self) { lang in
-                    Text(lang)
-                }
-            }
-            .pickerStyle(.menu)
-            .padding()
-        
             VStack(spacing: 20) {
-                Text("DocDigest Scanner")
-                    .font(.headline)
-                    .padding(.top)
+                // 1. Language Selection Area
+                HStack {
+                    Text("Target Language:")
+                        .font(.subheadline)
+                    Picker("Select Language", selection: $selectedLanguage) {
+                        ForEach(languages, id: \.self) { lang in
+                            Text(lang).tag(lang)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
 
-                // Text Display Area
+                // 2. Text Display Area
                 ScrollView {
                     Text(scannedText)
                         .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color(.systemGray6))
                         .cornerRadius(10)
                 }
@@ -62,8 +45,8 @@ struct VisionView: View {
                     ProgressView("Analyzing content...")
                 }
 
+                // 3. Action Buttons
                 HStack(spacing: 20) {
-                    // Photo Selection
                     PhotosPicker(selection: $selectedItem, matching: .images) {
                         Label("Photo", systemImage: "photo.fill")
                             .fontWeight(.bold)
@@ -73,7 +56,6 @@ struct VisionView: View {
                             .cornerRadius(15)
                     }
 
-                    // PDF Selection
                     Button(action: { showFilePicker = true }) {
                         Label("PDF", systemImage: "doc.badge.plus")
                             .fontWeight(.bold)
@@ -85,59 +67,58 @@ struct VisionView: View {
                 }
             }
             .padding()
-            .navigationTitle("Vision Lead")
-            // Navigation to the Translate Screen
+            .navigationTitle("DocDigest Scanner")
+            // Presentation Logic
             .fullScreenCover(isPresented: $navigateToTranslate) {
-                TranslateBridge(textToTranslate: scannedText)
+                TranslateBridge(textToTranslate: scannedText, targetLanguage: selectedLanguage)
             }
-            // PDF Picker Logic
+            // File Pickers & Triggers
             .fileImporter(
                 isPresented: $showFilePicker,
                 allowedContentTypes: [.pdf],
                 allowsMultipleSelection: false
             ) { result in
-                switch result {
-                case .success(let urls):
-                    if let firstURL = urls.first {
-                        processPDF(at: firstURL)
-                    }
-                case .failure(let error):
-                    print("File Picker Error: \(error.localizedDescription)")
-                }
+                handleFilePicker(result: result)
             }
-            // Photo Picker Logic
-   
-            // Photo Picker Logic (iOS 17+ Style)
             .onChange(of: selectedItem) { oldValue, newItem in
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        // We use await MainActor.run to update the UI state safely
-                        await MainActor.run { isProcessing = true }
-                        startTextRecognition(image: image)
-                    }
-                }
+                handlePhotoSelection(newItem: newItem)
             }
         }
     }
 
-    // --- Logic: PDF Processing ---
+    // --- Logic Helpers ---
+    
+    func handleFilePicker(result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            if let firstURL = urls.first { processPDF(at: firstURL) }
+        case .failure(let error):
+            print("File Picker Error: \(error.localizedDescription)")
+        }
+    }
+
+    func handlePhotoSelection(newItem: PhotosPickerItem?) {
+        Task {
+            if let data = try? await newItem?.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                await MainActor.run { isProcessing = true }
+                startTextRecognition(image: image)
+            }
+        }
+    }
+
     func processPDF(at url: URL) {
         isProcessing = true
-        
         guard url.startAccessingSecurityScopedResource() else {
             isProcessing = false
             return
         }
-        
         defer { url.stopAccessingSecurityScopedResource() }
 
         if let pdfDocument = PDFDocument(url: url),
            let firstPage = pdfDocument.page(at: 0) {
-            
             let pageRect = firstPage.bounds(for: .mediaBox)
             let renderer = UIGraphicsImageRenderer(size: pageRect.size)
-            
             let image = renderer.image { context in
                 context.cgContext.saveGState()
                 context.cgContext.translateBy(x: 0, y: pageRect.size.height)
@@ -152,7 +133,6 @@ struct VisionView: View {
         }
     }
 
-    // --- Logic: Vision Text Recognition ---
     func startTextRecognition(image: UIImage) {
         guard let cgImage = image.cgImage else {
             isProcessing = false
@@ -188,8 +168,4 @@ struct VisionView: View {
             }
         }
     }
-}
-
-#Preview {
-    VisionView()
 }

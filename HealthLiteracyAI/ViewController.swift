@@ -11,8 +11,6 @@ import Vision
 import SwiftUI
 
 class ViewController: UIViewController {
-    let camera = Camera()
-
     @IBOutlet weak var imgButton: UIButton!
     @IBOutlet weak var pdfButton: UIButton!
     @IBAction func pdfButtonTapped (_sender:UIButton){
@@ -59,7 +57,9 @@ class ViewController: UIViewController {
     @IBAction func imgButtonTapper (_ sender: AnyObject) {
         Task{
             //when tapped it will take the user to the Camera UI
-            
+            let cameraView = CameraView()
+            let hostingController = UIHostingController(rootView: cameraView)
+            self.present(hostingController, animated: true)
         }
     }
 

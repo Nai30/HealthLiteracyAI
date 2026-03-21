@@ -1,20 +1,16 @@
-//
-//  CameraView.swift
-//  HealthLiteracyAI
-//
-//  Created by Naima Marseille on 3/20/26.
-//
-
-
 import SwiftUI
 import AVFoundation
 
 struct CameraView: View {
     @State private var camera = AppCamera()
+    // We don't need the extra 'recognizedText' variable here anymore
+    // because we can pull directly from 'camera.recognizedText'
+    @State private var isShowingTranslate = false
+    @State private var targetLang = "Spanish"
 
     var body: some View {
         ZStack {
-            // Fix for the Black Screen: Shows live feed from the camera session
+            // Live Feed
             if !camera.hasPhoto {
                 CameraPreview(session: camera.session)
                     .ignoresSafeArea()
@@ -22,9 +18,9 @@ struct CameraView: View {
                 Color.black.ignoresSafeArea()
             }
             
-            VStack {
+             VStack {
                 if camera.hasPhoto {
-                    // UI to display the recognized text results
+                    // 1. Show the ScrollView with the OCR results
                     ScrollView {
                         Text(camera.recognizedText.isEmpty ? "No text detected." : camera.recognizedText)
                             .padding()
@@ -32,15 +28,37 @@ struct CameraView: View {
                             .cornerRadius(12)
                     }
                     .padding()
-                    
+
+                    // 2. INSERT THE TRANSLATE BUTTON HERE
+                    // It only shows up when there's a photo and text to process
+                    Button(action: {
+                        if !camera.recognizedText.isEmpty {
+                            isShowingTranslate = true
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                            Text("Translate with Gemini")
+                        }
+                        .bold()
+                        .frame(width: 280, height: 50)
+                        .background(camera.recognizedText.isEmpty ? Color.gray : Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .padding(.bottom, 10)
+
+                    // 3. Keep your "Retake" button below it
                     Button("Scan New Document") {
                         camera.retakePhoto()
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
+                    .foregroundColor(.white)
                     .padding(.bottom, 30)
+
                 } else {
                     Spacer()
-                    // Joshua's Camera Icon Button
+                    // Capture Button (Joshua's Icon)
                     Button(action: { camera.takePhotoAndProcess() }) {
                         Image(systemName: "camera.circle.fill")
                             .resizable()
@@ -51,8 +69,20 @@ struct CameraView: View {
                     .padding(.bottom, 50)
                 }
             }
+            // 4. ATTACH THE SHEET TO THE VSTACK (OUTSIDE THE IF/ELSE)
+            .sheet(isPresented: $isShowingTranslate) {
+                TranslateBridge(
+                    textToTranslate: camera.recognizedText,
+                    targetLanguage: targetLang
+                )
+            }
         }
         .onAppear { _ = camera.setup() }
+        // 4. The Sheet Trigger
+        // Use camera.recognizedText so the Bridge gets the actual OCR data
+        .sheet(isPresented: $isShowingTranslate) {
+            TranslateBridge(textToTranslate: camera.recognizedText, targetLanguage: targetLang)
+        }
     }
 }
 

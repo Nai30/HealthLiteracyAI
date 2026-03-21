@@ -1,40 +1,52 @@
-/*
-See the LICENSE.txt file for this sample’s licensing information.
-
-Abstract:
-Provides the class for the text recognition and the structure to create the bounding boxes.
-*/
-
 import SwiftUI
 import Vision
 
 @Observable
 class OCR {
-    /// The array of `RecognizedTextObservation` objects to hold the request's results.
-    var observations = [RecognizedTextObservation]()
-
-    /// The Vision request.
-    var request = RecognizeTextRequest()
+    var observations: [VNRecognizedTextObservation] = []
 
     func performOCR(imageData: Data) async throws {
-    observations.removeAll()
-    let results = try await request.perform(on: imageData)
-    
-    // This replaces the entire for-loop
-    self.observations = results 
+        await MainActor.run {
+            self.observations.removeAll()
+        }
+
+        guard let image = UIImage(data: imageData),
+              let cgImage = image.cgImage else { return }
+
+        let request = VNRecognizeTextRequest()
+        
+        let handler = VNImageRequestHandler(cgImage: cgImage)
+
+        try handler.perform([request])
+
+        let results = request.results ?? []
+
+        await MainActor.run {
+            self.observations = results
+        }
     }
 }
-
-/// Create and dynamically size a bounding box.
 struct Box: Shape {
-    private let normalizedRect: NormalizedRect
+    let normalizedRect: CGRect
 
-    init(observation: any BoundingBoxProviding) {
+    init(observation: VNRecognizedTextObservation) {
         normalizedRect = observation.boundingBox
     }
 
     func path(in rect: CGRect) -> Path {
-        let rect = normalizedRect.toImageCoordinates(rect.size, origin: .upperLeft)
-        return Path(rect)
+        let projected = VNImageRectForNormalizedRect(
+            normalizedRect,
+            Int(rect.width),
+            Int(rect.height)
+        )
+
+        let flipped = CGRect(
+            x: projected.minX,
+            y: rect.height - projected.maxY,
+            width: projected.width,
+            height: projected.height
+        )
+
+        return Path(flipped)
     }
 }

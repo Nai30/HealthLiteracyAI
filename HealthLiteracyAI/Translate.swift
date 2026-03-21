@@ -15,6 +15,11 @@ class Translate: UIViewController {
     var targetLanguage: String = "Spanish"
     private var lastProcessedText: String?
     
+    @IBOutlet weak var backButton: UIButton!
+    @IBAction func backButtonPressed(_ sender: Any) {
+        // This tells the "sheet" that was presented by CameraView to slide down and disappear
+        self.dismiss(animated: true, completion: nil)
+    }
     @IBOutlet weak var selectLanguage: UIButton!
     @IBAction func selectLanguagePressed(_ sender: Any) {
         guard let button = sender as? UIButton else {
@@ -46,7 +51,7 @@ class Translate: UIViewController {
         }
         
     }
-    //Will change this to be connected to whatever button item is shown
+  
 
     
     @IBOutlet weak var textArea: UITextView!
@@ -57,6 +62,7 @@ class Translate: UIViewController {
     }
     func performGeminiTranslation(messyText: String) {
         // 1. AVOID INFINITE LOOP: If we already processed this exact text, STOP.
+        print("DEBUG: Target Language is: \(targetLanguage ?? "N/A")")
         guard messyText != lastProcessedText else { return }
         lastProcessedText = messyText
         
@@ -89,6 +95,7 @@ class Translate: UIViewController {
             } else {
                 await MainActor.run {
                     self.textArea.text = "Gemini failed to process document."
+                    print("DEBUG: Gemini processing returned success = false")
                 }
             }
         }
